@@ -1,13 +1,22 @@
+import configparser
 from YTS_Consumer.YTSConsumer import YTSConsumer
 from pymongo import MongoClient
+from typing import Dict
+
 
 BASE_URL = "https://yts.mx/api/v2/list_movies.json?limit={}&page={}"
 LIMIT = 50
 
 
-def start_consuming() -> None:
+def read_config() -> Dict:
+    conf = configparser.ConfigParser()
+    conf.read('yts.ini')
+    return dict(conf['DEFAULT'].items())
+
+
+def start_consuming(config: Dict) -> None:
     page = 1
-    client = MongoClient(host='localhost', port=27017)
+    client = MongoClient(host=config['host'], port=int(config['port']))
     db = client.yts
 
     while True:
@@ -25,4 +34,5 @@ def start_consuming() -> None:
 
 
 if __name__ == '__main__':
-    start_consuming()
+    config = read_config()
+    start_consuming(config=config)
